@@ -19,3 +19,11 @@ variable "region" {
   type        = string
   description = "AWS Region the infrastructure is hosted in"
 }
+
+#------------------------------------------------------------------------------
+# IAM
+#------------------------------------------------------------------------------
+variable "aws_principals_identifiers" {
+  type        = list(string)
+  description = "List of identifiers for AWS principals with access to write in the logs bucket"
+}
