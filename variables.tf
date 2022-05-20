@@ -35,8 +35,14 @@ variable "enable_s3_bucket_server_side_encryption" {
   default     = true
 }
 
-variable "s3_bucket_server_side_encryption_key_arn" {
-  description = "(Optional) Allows the SSE key to use a Customer Managed Key, defaults to the alias and AWS managed key."
+variable "enable_s3_bucket_server_side_encryption_sse_algorithm" {
+  description = "(Optional) The server-side encryption algorithm to use. Valid values are AES256 and aws:kms"
+  type        = string
+  default     = "aws:kms"
+}
+
+variable "s3_bucket_server_side_encryption_key" {
+  description = "(Optional) The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse_algorithm is aws:kms."
   type        = string
   default     = "aws/s3"
 }

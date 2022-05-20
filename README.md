@@ -58,11 +58,15 @@ No modules.
 | <a name="input_aws_principals_identifiers"></a> [aws\_principals\_identifiers](#input\_aws\_principals\_identifiers) | List of identifiers for AWS principals with access to write in the logs bucket | `list(string)` | n/a | yes |
 | <a name="input_block_s3_bucket_public_access"></a> [block\_s3\_bucket\_public\_access](#input\_block\_s3\_bucket\_public\_access) | (Optional) If true, public access to the S3 bucket will be blocked. | `bool` | `true` | no |
 | <a name="input_enable_s3_bucket_server_side_encryption"></a> [enable\_s3\_bucket\_server\_side\_encryption](#input\_enable\_s3\_bucket\_server\_side\_encryption) | (Optional) If true, server side encryption will be applied. | `bool` | `true` | no |
+| <a name="input_enable_s3_bucket_server_side_encryption_sse_algorithm"></a> [enable\_s3\_bucket\_server\_side\_encryption\_sse\_algorithm](#input\_enable\_s3\_bucket\_server\_side\_encryption\_sse\_algorithm) | (Optional) The server-side encryption algorithm to use. Valid values are AES256 and aws:kms | `string` | `"aws:kms"` | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Name prefix for resources on AWS | `string` | n/a | yes |
-| <a name="input_s3_bucket_server_side_encryption_key_arn"></a> [s3\_bucket\_server\_side\_encryption\_key\_arn](#input\_s3\_bucket\_server\_side\_encryption\_key\_arn) | (Optional) Allows the SSE key to use a Customer Managed Key, defaults to the alias and AWS managed key. | `string` | `"aws/s3"` | no |
+| <a name="input_s3_bucket_server_side_encryption_key"></a> [s3\_bucket\_server\_side\_encryption\_key](#input\_s3\_bucket\_server\_side\_encryption\_key) | (Optional) The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse\_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse\_algorithm is aws:kms. | `string` | `"aws/s3"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Resource tags | `map(string)` | `{}` | no |
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_lb_logs_s3_bucket_arn"></a> [lb\_logs\_s3\_bucket\_arn](#output\_lb\_logs\_s3\_bucket\_arn) | LB Logging S3 Bucket ARN |
+| <a name="output_lb_logs_s3_bucket_id"></a> [lb\_logs\_s3\_bucket\_id](#output\_lb\_logs\_s3\_bucket\_id) | LB Logging S3 Bucket ID |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
