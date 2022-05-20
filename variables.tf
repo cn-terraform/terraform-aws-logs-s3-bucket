@@ -11,11 +11,3 @@ variable "tags" {
   default     = {}
   description = "Resource tags"
 }
-
-#------------------------------------------------------------------------------
-# AWS REGION
-#------------------------------------------------------------------------------
-variable "region" {
-  type        = string
-  description = "AWS Region the infrastructure is hosted in"
-}
