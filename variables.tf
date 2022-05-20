@@ -35,7 +35,7 @@ variable "enable_s3_bucket_server_side_encryption" {
   default     = true
 }
 
-variable "enable_s3_bucket_server_side_encryption_sse_algorithm" {
+variable "s3_bucket_server_side_encryption_sse_algorithm" {
   description = "(Optional) The server-side encryption algorithm to use. Valid values are AES256 and aws:kms"
   type        = string
   default     = "aws:kms"
