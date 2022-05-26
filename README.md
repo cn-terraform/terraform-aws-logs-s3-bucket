@@ -67,6 +67,7 @@ No modules.
 
 | Name | Description |
 |------|-------------|
-| <a name="output_lb_logs_s3_bucket_arn"></a> [lb\_logs\_s3\_bucket\_arn](#output\_lb\_logs\_s3\_bucket\_arn) | LB Logging S3 Bucket ARN |
-| <a name="output_lb_logs_s3_bucket_id"></a> [lb\_logs\_s3\_bucket\_id](#output\_lb\_logs\_s3\_bucket\_id) | LB Logging S3 Bucket ID |
+| <a name="output_s3_bucket_arn"></a> [s3\_bucket\_arn](#output\_s3\_bucket\_arn) | Logging S3 Bucket ARN |
+| <a name="output_s3_bucket_domain_name"></a> [s3\_bucket\_domain\_name](#output\_s3\_bucket\_domain\_name) | Logging S3 Bucket Domain Name |
+| <a name="output_s3_bucket_id"></a> [s3\_bucket\_id](#output\_s3\_bucket\_id) | Logging S3 Bucket ID |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
