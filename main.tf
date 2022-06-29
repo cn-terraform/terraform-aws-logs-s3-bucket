@@ -47,19 +47,21 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
 data "aws_iam_policy_document" "logs_access_policy_document" {
   statement {
     effect = "Allow"
-
     principals {
       type        = "AWS"
       identifiers = var.aws_principals_identifiers
     }
-
-    actions = [
-      "s3:PutObject",
-    ]
-
-    resources = [
-      "${aws_s3_bucket.logs.arn}/*",
-    ]
+    actions   = ["s3:PutObject"]
+    resources = ["${aws_s3_bucket.logs.arn}/*", ]
+  }
+  statement {
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["logdelivery.elb.amazonaws.com"]
+    }
+    actions   = ["s3:GetBucketAcl"]
+    resources = [aws_s3_bucket.logs.arn]
   }
 }
 
