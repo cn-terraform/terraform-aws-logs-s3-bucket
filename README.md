@@ -1,4 +1,4 @@
-# STerraform Module for AWS #
+# Terraform Module for AWS #
 
 Complete
 
