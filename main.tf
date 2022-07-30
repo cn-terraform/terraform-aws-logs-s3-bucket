@@ -4,7 +4,7 @@
 resource "random_string" "random" {
   length  = 7
   lower   = true
-  number  = false
+  numeric = false
   upper   = false
   special = false
   keepers = {
