@@ -14,6 +14,7 @@ resource "random_string" "random" {
 
 resource "aws_s3_bucket" "logs" {
   bucket = lower("${random_string.random.keepers.name_prefix}-logs-${random_string.random.result}")
+  force_destroy = var.s3_bucket_force_destroy
   tags = merge(
     var.tags,
     {

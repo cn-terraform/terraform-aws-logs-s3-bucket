@@ -46,3 +46,9 @@ variable "s3_bucket_server_side_encryption_key" {
   type        = string
   default     = null
 }
+
+variable "s3_bucket_force_destroy" {
+  description = "(Optional) Sets force_destroy attribute on the generated S3 bucket."
+  type        = bool
+  default     = false
+}
