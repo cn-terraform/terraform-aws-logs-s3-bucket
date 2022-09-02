@@ -72,6 +72,32 @@ data "aws_iam_policy_document" "logs_access_policy_document" {
     actions   = ["s3:GetBucketAcl"]
     resources = [aws_s3_bucket.logs.arn]
   }
+
+  statement {
+    sid = "https-only"
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    effect = "Deny"
+
+    actions = [
+      "s3:*",
+    ]
+
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.logs.id}",
+      "arn:aws:s3:::${aws_s3_bucket.logs.id}/*",
+    ]
+
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = [false]
+    }
+  }
 }
 
 #------------------------------------------------------------------------------
