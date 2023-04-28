@@ -13,7 +13,7 @@ resource "random_string" "random" {
 }
 
 resource "aws_s3_bucket" "logs" {
-  bucket = lower("${random_string.random.keepers.name_prefix}-logs-${random_string.random.result}")
+  bucket        = lower("${random_string.random.keepers.name_prefix}-logs-${random_string.random.result}")
   force_destroy = var.s3_bucket_force_destroy
   tags = merge(
     var.tags,
@@ -24,9 +24,9 @@ resource "aws_s3_bucket" "logs" {
 }
 
 resource "aws_s3_bucket_acl" "logs" {
-  bucket = aws_s3_bucket.logs.id
+  bucket     = aws_s3_bucket.logs.id
   depends_on = [aws_s3_bucket_ownership_controls.logs]
-  acl    = "log-delivery-write"
+  acl        = "log-delivery-write"
 }
 
 resource "aws_s3_bucket_ownership_controls" "logs" {
