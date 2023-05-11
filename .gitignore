@@ -1,5 +1,5 @@
-# Created by https://www.toptal.com/developers/gitignore/api/macos,windows,linux,visualstudiocode,terraform,terragrunt
-# Edit at https://www.toptal.com/developers/gitignore?templates=macos,windows,linux,visualstudiocode,terraform,terragrunt
+# Created by https://www.toptal.com/developers/gitignore/api/linux,macos,windows,terraform,visualstudiocode,sublimetext
+# Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,windows,terraform,visualstudiocode,sublimetext
 
 ### Linux ###
 *~
@@ -49,6 +49,39 @@ Temporary Items
 # iCloud generated files
 *.icloud
 
+### SublimeText ###
+# Cache files for Sublime Text
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+
+# Workspace files are user-specific
+*.sublime-workspace
+
+# Project files should be checked into the repository, unless a significant
+# proportion of contributors will probably not be using Sublime Text
+# *.sublime-project
+
+# SFTP configuration file
+sftp-config.json
+sftp-config-alt*.json
+
+# Package control specific files
+Package Control.last-run
+Package Control.ca-list
+Package Control.ca-bundle
+Package Control.system-ca-bundle
+Package Control.cache/
+Package Control.ca-certs/
+Package Control.merged-ca-bundle
+Package Control.user-ca-bundle
+oscrypto-ca-bundle.crt
+bh_unicode_properties.cache
+
+# Sublime-github package stores a github token in this file
+# https://packagecontrol.io/packages/sublime-github
+GitHub.sublime-settings
+
 ### Terraform ###
 # Local .terraform directories
 **/.terraform/*
@@ -85,14 +118,6 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-### Terragrunt ###
-# terragrunt cache directories
-**/.terragrunt-cache/*
-
-# Terragrunt debug output file (when using `--terragrunt-debug` option)
-# See: https://terragrunt.gruntwork.io/docs/reference/cli-options/#terragrunt-debug
-terragrunt-debug.tfvars.json
-
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
@@ -111,12 +136,6 @@ terragrunt-debug.tfvars.json
 # Ignore all local history of files
 .history
 .ionide
-
-# Support for Project snippet scope
-.vscode/*.code-snippets
-
-# Ignore code-workspaces
-*.code-workspace
 
 ### Windows ###
 # Windows thumbnail cache files
@@ -144,4 +163,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/macos,windows,linux,visualstudiocode,terraform,terragrunt
+# End of https://www.toptal.com/developers/gitignore/api/linux,macos,windows,terraform,visualstudiocode,sublimetext
