@@ -1,7 +1,13 @@
 module "logs_bucket" {
   source = "../../"
 
-  name_prefix                                    = "test"
+  bucket_name         = "test"
+  force_destroy       = false
+  object_lock_enabled = false
+  bucket_versioning = {
+    status     = "Enabled"
+    mfa_delete = "Enabled"
+  }
   aws_principals_identifiers                     = ["test-user-arn"]
   block_s3_bucket_public_access                  = true
   enable_s3_bucket_server_side_encryption        = true
