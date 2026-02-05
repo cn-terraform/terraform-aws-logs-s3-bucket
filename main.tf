@@ -1,26 +1,24 @@
-#------------------------------------------------------------------------------
+#############################
 # S3 BUCKET - For access logs
-#------------------------------------------------------------------------------
-resource "random_string" "random" {
-  length  = 7
-  lower   = true
-  numeric = false
-  upper   = false
-  special = false
-  keepers = {
-    name_prefix = var.name_prefix
-  }
-}
-
+#############################
 resource "aws_s3_bucket" "logs" {
-  bucket        = lower("${random_string.random.keepers.name_prefix}-logs-${random_string.random.result}")
-  force_destroy = var.s3_bucket_force_destroy
+  bucket              = var.bucket_name
+  force_destroy       = var.force_destroy
+  object_lock_enabled = var.object_lock_enabled
   tags = merge(
     var.tags,
     {
-      Name = lower("${random_string.random.keepers.name_prefix}-logs-${random_string.random.result}")
-    },
+      Name = var.bucket_name
+    }
   )
+}
+
+resource "aws_s3_bucket_versioning" "logs" {
+  bucket = aws_s3_bucket.logs.id
+  versioning_configuration {
+    status     = var.bucket_versioning.status
+    mfa_delete = var.bucket_versioning.mfa_delete
+  }
 }
 
 resource "aws_s3_bucket_acl" "logs" {
