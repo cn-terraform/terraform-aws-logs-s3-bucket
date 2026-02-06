@@ -8,7 +8,9 @@ module "logs_bucket" {
     status     = "Enabled"
     mfa_delete = "Enabled"
   }
-  aws_principals_identifiers                     = ["test-user-arn"]
-  enable_s3_bucket_server_side_encryption        = true
-  s3_bucket_server_side_encryption_sse_algorithm = "AES256"
+  bucket_server_side_encryption = {
+    sse_algorithm     = "AES256"
+    kms_master_key_id = null
+  }
+  aws_principals_identifiers = ["test-user-arn"]
 }

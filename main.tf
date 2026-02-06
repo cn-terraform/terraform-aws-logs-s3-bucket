@@ -42,16 +42,14 @@ resource "aws_s3_bucket_public_access_block" "logs" {
   restrict_public_buckets = true
 }
 
-
+# Server side encryption configuration for the bucket
 resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
-  count = var.enable_s3_bucket_server_side_encryption ? 1 : 0
-
   bucket = aws_s3_bucket.logs.id
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm     = var.s3_bucket_server_side_encryption_sse_algorithm
-      kms_master_key_id = var.s3_bucket_server_side_encryption_sse_algorithm == "aws:kms" ? var.s3_bucket_server_side_encryption_key : null
+      sse_algorithm     = var.bucket_server_side_encryption.sse_algorithm
+      kms_master_key_id = contains(["aws:kms", "aws:kms:dsse"], var.bucket_server_side_encryption.sse_algorithm) ? var.bucket_server_side_encryption.kms_master_key_id : null
     }
   }
 }

@@ -57,22 +57,19 @@ variable "bucket_versioning" {
   }
 }
 
+variable "bucket_server_side_encryption" {
+  description = "(Optional) The bucket server side encryption configuration."
+  type = object({
+    sse_algorithm     = string
+    kms_master_key_id = optional(string)
+  })
+  default = {
+    sse_algorithm     = "AES256"
+    kms_master_key_id = null
+  }
 
-
-variable "enable_s3_bucket_server_side_encryption" {
-  description = "(Optional) If true, server side encryption will be applied."
-  type        = bool
-  default     = true
-}
-
-variable "s3_bucket_server_side_encryption_sse_algorithm" {
-  description = "(Optional) The server-side encryption algorithm to use. Valid values are AES256 and aws:kms"
-  type        = string
-  default     = "AES256"
-}
-
-variable "s3_bucket_server_side_encryption_key" {
-  description = "(Optional) The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of sse_algorithm as aws:kms. The default aws/s3 AWS KMS master key is used if this element is absent while the sse_algorithm is aws:kms."
-  type        = string
-  default     = null
+  validation {
+    condition     = contains(["AES256", "aws:kms", "aws:kms:dsse"], var.bucket_server_side_encryption.sse_algorithm)
+    error_message = "The value of var.bucket_server_side_encryption.sse_algorithm must be one of AES256, aws:kms, or aws:kms:dsse."
+  }
 }
