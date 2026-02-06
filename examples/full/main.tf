@@ -12,5 +12,5 @@ module "logs_bucket" {
     sse_algorithm     = "AES256"
     kms_master_key_id = null
   }
-  aws_principals_identifiers = ["test-user-arn"]
+  log_delivery_principals = ["cloudtrail.amazonaws.com"]
 }

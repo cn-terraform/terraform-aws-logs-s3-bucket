@@ -7,14 +7,6 @@ variable "tags" {
   description = "Resource tags"
 }
 
-#####
-# IAM
-#####
-variable "aws_principals_identifiers" {
-  type        = list(string)
-  description = "List of identifiers for AWS principals with access to write in the logs bucket"
-}
-
 ###########
 # S3 bucket
 ###########
@@ -71,5 +63,18 @@ variable "bucket_server_side_encryption" {
   validation {
     condition     = contains(["AES256", "aws:kms", "aws:kms:dsse"], var.bucket_server_side_encryption.sse_algorithm)
     error_message = "The value of var.bucket_server_side_encryption.sse_algorithm must be one of AES256, aws:kms, or aws:kms:dsse."
+  }
+}
+
+######################
+# Bucket access policy
+######################
+variable "log_delivery_principals" {
+  type        = list(string)
+  description = "Service principals allowed to deliver logs. Example: [\"cloudtrail.amazonaws.com\"]. Add ELB, vpc-flow-logs principals as needed."
+
+  validation {
+    condition     = length(var.log_delivery_principals) >= 1
+    error_message = "At least one log delivery principal should be set"
   }
 }

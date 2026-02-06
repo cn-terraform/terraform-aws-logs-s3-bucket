@@ -54,69 +54,60 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
   }
 }
 
-#------------------------------------------------------------------------------
-# IAM POLICY DOCUMENT - For access logs to the S3 bucket
-#------------------------------------------------------------------------------
-data "aws_caller_identity" "current" {}
+######################
+# Bucket access policy
+######################
 
-locals {
-  aws_principals_identifiers = (
-    length(var.aws_principals_identifiers) == 0
-    ? [data.aws_caller_identity.current.account_id]
-    : var.aws_principals_identifiers
-  )
-}
-
-data "aws_iam_policy_document" "logs_access_policy_document" {
+# Allow the logging services to write and check ACLs (CloudTrail, etc.)
+data "aws_iam_policy_document" "allow_log_delivery" {
   statement {
-    effect = "Allow"
-    principals {
-      type        = "AWS"
-      identifiers = local.aws_principals_identifiers
-    }
-    actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.logs.arn}/*", ]
-  }
-  statement {
-    effect = "Allow"
+    sid = "AllowLogDeliveryServices"
     principals {
       type        = "Service"
-      identifiers = ["logdelivery.elb.amazonaws.com"]
+      identifiers = var.log_delivery_principals
     }
-    actions   = ["s3:GetBucketAcl"]
-    resources = [aws_s3_bucket.logs.arn]
+    actions = [
+      "s3:GetBucketAcl",
+      "s3:PutObject"
+    ]
+    resources = [
+      aws_s3_bucket.logs.arn,
+      "${aws_s3_bucket.logs.arn}/*"
+    ]
   }
+}
 
+# Deny any PutObject that does not use an allowed SSE algorithm
+data "aws_iam_policy_document" "deny_unencrypted" {
   statement {
-    sid = "https-only"
+    sid    = "DenyUnencryptedUploads"
+    effect = "Deny"
 
     principals {
-      type        = "*"
+      type        = "AWS"
       identifiers = ["*"]
     }
 
-    effect = "Deny"
-
-    actions = [
-      "s3:*",
-    ]
-
-    resources = [
-      "arn:aws:s3:::${aws_s3_bucket.logs.id}",
-      "arn:aws:s3:::${aws_s3_bucket.logs.id}/*",
-    ]
+    actions   = ["s3:PutObject"]
+    resources = ["${aws_s3_bucket.logs.arn}/*"]
 
     condition {
-      test     = "Bool"
-      variable = "aws:SecureTransport"
-      values   = [false]
+      test     = "StringNotEquals"
+      variable = "s3:x-amz-server-side-encryption"
+      values   = [var.bucket_server_side_encryption.sse_algorithm]
     }
   }
 }
 
-#------------------------------------------------------------------------------
-# IAM POLICY - For access logs to the s3 bucket
-#------------------------------------------------------------------------------
+# Combined policy document
+data "aws_iam_policy_document" "logs_access_policy_document" {
+  source_policy_documents = [
+    data.aws_iam_policy_document.allow_log_delivery.json,
+    data.aws_iam_policy_document.deny_unencrypted.json
+  ]
+}
+
+# Policy attached to the bucket
 resource "aws_s3_bucket_policy" "logs_access_policy" {
   bucket = aws_s3_bucket.logs.id
   policy = data.aws_iam_policy_document.logs_access_policy_document.json
