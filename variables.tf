@@ -58,11 +58,6 @@ variable "bucket_versioning" {
 }
 
 
-variable "block_s3_bucket_public_access" {
-  description = "(Optional) If true, public access to the S3 bucket will be blocked."
-  type        = bool
-  default     = true
-}
 
 variable "enable_s3_bucket_server_side_encryption" {
   description = "(Optional) If true, server side encryption will be applied."

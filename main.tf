@@ -1,6 +1,7 @@
-#############################
-# S3 BUCKET - For access logs
-#############################
+###########
+# S3 bucket
+###########
+# trivy:ignore:AWS-0089 (LOW): Bucket has logging disabled
 resource "aws_s3_bucket" "logs" {
   bucket              = var.bucket_name
   force_destroy       = var.force_destroy
@@ -13,6 +14,7 @@ resource "aws_s3_bucket" "logs" {
   )
 }
 
+# Bucket versioning
 resource "aws_s3_bucket_versioning" "logs" {
   bucket = aws_s3_bucket.logs.id
   versioning_configuration {
@@ -21,19 +23,25 @@ resource "aws_s3_bucket_versioning" "logs" {
   }
 }
 
-resource "aws_s3_bucket_acl" "logs" {
-  bucket     = aws_s3_bucket.logs.id
-  depends_on = [aws_s3_bucket_ownership_controls.logs]
-  acl        = "log-delivery-write"
-}
-
+# Bucket ownership controls, to enforce bucket owner enforced ownership
 resource "aws_s3_bucket_ownership_controls" "logs" {
   bucket = aws_s3_bucket.logs.id
 
   rule {
-    object_ownership = "BucketOwnerPreferred"
+    object_ownership = "BucketOwnerEnforced"
   }
 }
+
+# S3 bucket block public access
+resource "aws_s3_bucket_public_access_block" "logs" {
+  bucket = aws_s3_bucket.logs.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
   count = var.enable_s3_bucket_server_side_encryption ? 1 : 0
@@ -114,20 +122,4 @@ data "aws_iam_policy_document" "logs_access_policy_document" {
 resource "aws_s3_bucket_policy" "logs_access_policy" {
   bucket = aws_s3_bucket.logs.id
   policy = data.aws_iam_policy_document.logs_access_policy_document.json
-}
-
-#------------------------------------------------------------------------------
-# S3 bucket block public access
-#------------------------------------------------------------------------------
-resource "aws_s3_bucket_public_access_block" "logs_block_public_access" {
-  count = var.block_s3_bucket_public_access ? 1 : 0
-
-  bucket = aws_s3_bucket.logs.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-
-  depends_on = [aws_s3_bucket_policy.logs_access_policy]
 }
