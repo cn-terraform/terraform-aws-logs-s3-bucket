@@ -1,135 +1,114 @@
-#------------------------------------------------------------------------------
-# S3 BUCKET - For access logs
-#------------------------------------------------------------------------------
-resource "random_string" "random" {
-  length  = 7
-  lower   = true
-  numeric = false
-  upper   = false
-  special = false
-  keepers = {
-    name_prefix = var.name_prefix
-  }
-}
-
+###########
+# S3 bucket
+###########
+# trivy:ignore:AWS-0089 (LOW): Bucket has logging disabled
 resource "aws_s3_bucket" "logs" {
-  bucket        = lower("${random_string.random.keepers.name_prefix}-logs-${random_string.random.result}")
-  force_destroy = var.s3_bucket_force_destroy
+  bucket              = var.bucket_name
+  force_destroy       = var.force_destroy
+  object_lock_enabled = var.object_lock_enabled
   tags = merge(
     var.tags,
     {
-      Name = lower("${random_string.random.keepers.name_prefix}-logs-${random_string.random.result}")
-    },
+      Name = var.bucket_name
+    }
   )
 }
 
-resource "aws_s3_bucket_acl" "logs" {
-  bucket     = aws_s3_bucket.logs.id
-  depends_on = [aws_s3_bucket_ownership_controls.logs]
-  acl        = "log-delivery-write"
+# Bucket versioning
+resource "aws_s3_bucket_versioning" "logs" {
+  bucket = aws_s3_bucket.logs.id
+  versioning_configuration {
+    status     = var.bucket_versioning.status
+    mfa_delete = var.bucket_versioning.mfa_delete
+  }
 }
 
+# Bucket ownership controls, to enforce bucket owner enforced ownership
 resource "aws_s3_bucket_ownership_controls" "logs" {
   bucket = aws_s3_bucket.logs.id
 
   rule {
-    object_ownership = "BucketOwnerPreferred"
+    object_ownership = "BucketOwnerEnforced"
   }
 }
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
-  count = var.enable_s3_bucket_server_side_encryption ? 1 : 0
-
-  bucket = aws_s3_bucket.logs.id
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm     = var.s3_bucket_server_side_encryption_sse_algorithm
-      kms_master_key_id = var.s3_bucket_server_side_encryption_sse_algorithm == "aws:kms" ? var.s3_bucket_server_side_encryption_key : null
-    }
-  }
-}
-
-#------------------------------------------------------------------------------
-# IAM POLICY DOCUMENT - For access logs to the S3 bucket
-#------------------------------------------------------------------------------
-data "aws_caller_identity" "current" {}
-
-locals {
-  aws_principals_identifiers = (
-    length(var.aws_principals_identifiers) == 0
-    ? [data.aws_caller_identity.current.account_id]
-    : var.aws_principals_identifiers
-  )
-}
-
-data "aws_iam_policy_document" "logs_access_policy_document" {
-  statement {
-    effect = "Allow"
-    principals {
-      type        = "AWS"
-      identifiers = local.aws_principals_identifiers
-    }
-    actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.logs.arn}/*", ]
-  }
-  statement {
-    effect = "Allow"
-    principals {
-      type        = "Service"
-      identifiers = ["logdelivery.elb.amazonaws.com"]
-    }
-    actions   = ["s3:GetBucketAcl"]
-    resources = [aws_s3_bucket.logs.arn]
-  }
-
-  statement {
-    sid = "https-only"
-
-    principals {
-      type        = "*"
-      identifiers = ["*"]
-    }
-
-    effect = "Deny"
-
-    actions = [
-      "s3:*",
-    ]
-
-    resources = [
-      "arn:aws:s3:::${aws_s3_bucket.logs.id}",
-      "arn:aws:s3:::${aws_s3_bucket.logs.id}/*",
-    ]
-
-    condition {
-      test     = "Bool"
-      variable = "aws:SecureTransport"
-      values   = [false]
-    }
-  }
-}
-
-#------------------------------------------------------------------------------
-# IAM POLICY - For access logs to the s3 bucket
-#------------------------------------------------------------------------------
-resource "aws_s3_bucket_policy" "logs_access_policy" {
-  bucket = aws_s3_bucket.logs.id
-  policy = data.aws_iam_policy_document.logs_access_policy_document.json
-}
-
-#------------------------------------------------------------------------------
 # S3 bucket block public access
-#------------------------------------------------------------------------------
-resource "aws_s3_bucket_public_access_block" "logs_block_public_access" {
-  count = var.block_s3_bucket_public_access ? 1 : 0
-
+resource "aws_s3_bucket_public_access_block" "logs" {
   bucket = aws_s3_bucket.logs.id
 
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+}
 
-  depends_on = [aws_s3_bucket_policy.logs_access_policy]
+# Server side encryption configuration for the bucket
+resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
+  bucket = aws_s3_bucket.logs.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = var.bucket_server_side_encryption.sse_algorithm
+      kms_master_key_id = contains(["aws:kms", "aws:kms:dsse"], var.bucket_server_side_encryption.sse_algorithm) ? var.bucket_server_side_encryption.kms_master_key_id : null
+    }
+  }
+}
+
+######################
+# Bucket access policy
+######################
+
+# Allow the logging services to write and check ACLs (CloudTrail, etc.)
+data "aws_iam_policy_document" "allow_log_delivery" {
+  statement {
+    sid = "AllowLogDeliveryServices"
+    principals {
+      type        = "Service"
+      identifiers = var.log_delivery_principals
+    }
+    actions = [
+      "s3:GetBucketAcl",
+      "s3:PutObject"
+    ]
+    resources = [
+      aws_s3_bucket.logs.arn,
+      "${aws_s3_bucket.logs.arn}/*"
+    ]
+  }
+}
+
+# Deny any PutObject that does not use an allowed SSE algorithm
+data "aws_iam_policy_document" "deny_unencrypted" {
+  statement {
+    sid    = "DenyUnencryptedUploads"
+    effect = "Deny"
+
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    actions   = ["s3:PutObject"]
+    resources = ["${aws_s3_bucket.logs.arn}/*"]
+
+    condition {
+      test     = "StringNotEquals"
+      variable = "s3:x-amz-server-side-encryption"
+      values   = [var.bucket_server_side_encryption.sse_algorithm]
+    }
+  }
+}
+
+# Combined policy document
+data "aws_iam_policy_document" "logs_access_policy_document" {
+  source_policy_documents = [
+    data.aws_iam_policy_document.allow_log_delivery.json,
+    data.aws_iam_policy_document.deny_unencrypted.json
+  ]
+}
+
+# Policy attached to the bucket
+resource "aws_s3_bucket_policy" "logs_access_policy" {
+  bucket = aws_s3_bucket.logs.id
+  policy = data.aws_iam_policy_document.logs_access_policy_document.json
 }
