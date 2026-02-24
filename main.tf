@@ -72,7 +72,7 @@ data "aws_iam_policy_document" "allow_log_delivery" {
     ]
     resources = [
       aws_s3_bucket.logs.arn,
-      "${aws_s3_bucket.logs.arn}/*"
+      format("%s/*", aws_s3_bucket.logs.arn)
     ]
   }
 }
@@ -89,7 +89,7 @@ data "aws_iam_policy_document" "deny_unencrypted" {
     }
 
     actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.logs.arn}/*"]
+    resources = [format("%s/*", aws_s3_bucket.logs.arn)]
 
     condition {
       test     = "StringNotEquals"
