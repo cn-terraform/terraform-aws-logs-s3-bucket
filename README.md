@@ -28,15 +28,15 @@ pre-commit run --all-files
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.5.7 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~>6 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.33.0 |
+| ---- | ------- |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | ~>6 |
 
 ## Modules
 
@@ -45,7 +45,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_s3_bucket.logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
 | [aws_s3_bucket_ownership_controls.logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_ownership_controls) | resource |
 | [aws_s3_bucket_policy.logs_access_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
@@ -59,7 +59,7 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | Name prefix for resources on AWS | `string` | n/a | yes |
 | <a name="input_bucket_server_side_encryption"></a> [bucket\_server\_side\_encryption](#input\_bucket\_server\_side\_encryption) | (Optional) The bucket server side encryption configuration. | <pre>object({<br/>    sse_algorithm     = string<br/>    kms_master_key_id = optional(string)<br/>  })</pre> | <pre>{<br/>  "kms_master_key_id": null,<br/>  "sse_algorithm": "AES256"<br/>}</pre> | no |
 | <a name="input_bucket_versioning"></a> [bucket\_versioning](#input\_bucket\_versioning) | value | <pre>object({<br/>    status     = string<br/>    mfa_delete = optional(string)<br/>  })</pre> | <pre>{<br/>  "mfa_delete": "Enabled",<br/>  "status": "Enabled"<br/>}</pre> | no |
@@ -71,7 +71,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_s3_bucket_arn"></a> [s3\_bucket\_arn](#output\_s3\_bucket\_arn) | Logging S3 Bucket ARN |
 | <a name="output_s3_bucket_domain_name"></a> [s3\_bucket\_domain\_name](#output\_s3\_bucket\_domain\_name) | Logging S3 Bucket Domain Name |
 | <a name="output_s3_bucket_id"></a> [s3\_bucket\_id](#output\_s3\_bucket\_id) | Logging S3 Bucket ID |
